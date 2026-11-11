@@ -112,13 +112,14 @@ export function PassphraseProvider({ children }: { children: ReactNode }) {
               editable={!busy}
             />
             <Row>
-              <Button label="Cancel" tone="quiet" onPress={cancel} disabled={busy} style={styles.action} />
+              <Button label="Cancel" tone="quiet" onPress={cancel} disabled={busy} style={styles.action} testID="passphrase-cancel" />
               <Button
                 label={request?.actionLabel ?? 'Unlock'}
                 onPress={submit}
                 busy={busy}
                 disabled={!passphrase}
                 style={styles.action}
+                testID="passphrase-submit"
               />
             </Row>
           </View>

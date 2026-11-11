@@ -24,10 +24,10 @@ export default function TabsLayout() {
         sceneStyle: { backgroundColor: colors.abyss },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Keyring', tabBarIcon: tabIcon('key-outline') }} />
-      <Tabs.Screen name="studio" options={{ title: 'Encrypt', tabBarIcon: tabIcon('lock-closed-outline') }} />
-      <Tabs.Screen name="scan" options={{ title: 'Scan', tabBarIcon: tabIcon('scan-outline') }} />
-      <Tabs.Screen name="settings" options={{ title: 'Settings', tabBarIcon: tabIcon('settings-outline') }} />
+      <Tabs.Screen name="index" options={{ title: 'Keyring', tabBarButtonTestID: 'tab-keyring', tabBarIcon: tabIcon('key-outline') }} />
+      <Tabs.Screen name="studio" options={{ title: 'Encrypt', tabBarButtonTestID: 'tab-encrypt', tabBarIcon: tabIcon('lock-closed-outline') }} />
+      <Tabs.Screen name="scan" options={{ title: 'Scan', tabBarButtonTestID: 'tab-scan', tabBarIcon: tabIcon('scan-outline') }} />
+      <Tabs.Screen name="settings" options={{ title: 'Settings', tabBarButtonTestID: 'tab-settings', tabBarIcon: tabIcon('settings-outline') }} />
     </Tabs>
   );
 }
