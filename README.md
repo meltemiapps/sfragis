@@ -78,6 +78,8 @@ HERMES_BIN=/path/to/hermes npm run test:hermes
 
 CI runs typecheck, lint, `npm test` and `npm test -- --rsa` on every push and pull request.
 
+`test:hermes` bundles the suite through the app's Metro and Babel configuration and runs it on a bare Hermes VM. Native modules cannot load there, so a test double built on noble stands in for `react-native-quick-crypto`. The on-device self-test covers the real provider.
+
 `test:gpg` uses `services/pgpService.ts` against `gpg` in a throwaway `GNUPGHOME`, for Ed25519 and RSA 4096. It checks key import both ways, encrypt and sign in each direction with verification on the other side, cross-use of exported private keys, and revocation.
 
 ### End-to-end tests
@@ -92,8 +94,6 @@ e2e/screenshots.sh                                # App Store screenshots
 ```
 
 `e2e/run.sh` turns off Maestro's CLI analytics. The QR scanner, share sheet, clipboard clearing and screenshot blocking need real hardware. They are listed in [e2e/MANUAL-TESTS.md](e2e/MANUAL-TESTS.md).
-
-`test:hermes` bundles the suite through the app's Metro and Babel configuration and runs it on a bare Hermes VM. Native modules cannot load there, so a test double built on noble stands in for `react-native-quick-crypto`. The on-device self-test covers the real provider.
 
 ## Release checklist
 
