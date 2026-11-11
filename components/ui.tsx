@@ -19,6 +19,11 @@ import { colors, mono, radius, space, type } from '../utils/theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
+/** Stable automation ID derived from a visible label, e.g. "Key block" -> "key-block". */
+export function slug(label: string): string {
+  return label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 export function Screen({ children, scroll = true, title }: { children: ReactNode; scroll?: boolean; title?: string }) {
   const header = title ? <Text style={[type.title, styles.title]} accessibilityRole="header">{title}</Text> : null;
   return (
@@ -50,6 +55,7 @@ export function Button({
   busy = false,
   disabled = false,
   style,
+  testID,
 }: {
   label: string;
   onPress: () => void;
@@ -58,11 +64,13 @@ export function Button({
   busy?: boolean;
   disabled?: boolean;
   style?: ViewStyle;
+  testID?: string;
 }) {
   const inactive = disabled || busy;
   const foreground = tone === 'primary' ? colors.onAegean : tone === 'danger' ? colors.wax : colors.foam;
   return (
     <Pressable
+      testID={testID ?? `button-${slug(label)}`}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: inactive, busy }}
@@ -96,6 +104,7 @@ export function Field({
     <View style={styles.field}>
       <Text style={type.label}>{label}</Text>
       <TextInput
+        testID={`field-${slug(label)}`}
         accessibilityLabel={label}
         placeholderTextColor={colors.mist}
         selectionColor={colors.aegean}
@@ -110,12 +119,18 @@ export function Field({
   );
 }
 
+/**
+ * OpenPGP passphrases must never reach the system password manager. On iOS,
+ * `textContentType="none"` no longer stops "Use Strong Password?" on two adjacent
+ * secure fields, which would save the passphrase to Passwords/iCloud Keychain.
+ * `oneTimeCode` is the content type that opts a secure field out of password AutoFill.
+ */
 export function PassphraseField(props: TextInputProps & { label: string; hint?: string; error?: string | null }) {
   return (
     <Field
       secureTextEntry
       autoComplete="off"
-      textContentType="none"
+      textContentType={Platform.OS === 'ios' ? 'oneTimeCode' : 'none'}
       importantForAutofill="no"
       {...props}
     />
@@ -151,6 +166,7 @@ export function Segmented<T extends string>({
         return (
           <Pressable
             key={option.value}
+            testID={`segment-${slug(option.value)}`}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             onPress={() => onChange(option.value)}
