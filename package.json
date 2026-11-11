@@ -46,7 +46,8 @@
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit",
     "test": "tsx tests/node-entry.ts",
-    "test:hermes": "bash scripts/test-hermes.sh"
+    "test:hermes": "bash scripts/test-hermes.sh",
+    "test:gpg": "tsx scripts/gpg-interop.ts"
   },
   "private": true,
   "license": "MIT"
