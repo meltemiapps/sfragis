@@ -12,11 +12,6 @@
       "ios",
       "android"
     ],
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#08151F"
-    },
     "ios": {
       "bundleIdentifier": "com.meltemiapps.sfragis",
       "supportsTablet": true,
@@ -93,8 +88,16 @@
           "barcodeScannerEnabled": true
         }
       ],
-      "expo-splash-screen",
-      "./plugins/withHardening"
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#08151F"
+        }
+      ],
+      "./plugins/withHardening",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": false
