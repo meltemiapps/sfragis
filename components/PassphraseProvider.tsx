@@ -4,7 +4,7 @@ import { Modal, StyleSheet, Text, View } from 'react-native';
 import { PgpError } from '../services/pgpService';
 import { errorMessage, nextPaint } from '../utils/format';
 import { colors, radius, space, type } from '../utils/theme';
-import { Button, PassphraseField, Row } from './ui';
+import { Button, PassphraseField, Row, useLargeText } from './ui';
 
 interface Request {
   title: string;
@@ -36,6 +36,7 @@ export function PassphraseProvider({ children }: { children: ReactNode }) {
   const [passphrase, setPassphrase] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const largeText = useLargeText();
   const activeRef = useRef<Request | null>(null);
 
   const close = useCallback(() => {
@@ -112,13 +113,13 @@ export function PassphraseProvider({ children }: { children: ReactNode }) {
               editable={!busy}
             />
             <Row>
-              <Button label="Cancel" tone="quiet" onPress={cancel} disabled={busy} style={styles.action} testID="passphrase-cancel" />
+              <Button label="Cancel" tone="quiet" onPress={cancel} disabled={busy} style={largeText ? undefined : styles.action} testID="passphrase-cancel" />
               <Button
                 label={request?.actionLabel ?? 'Unlock'}
                 onPress={submit}
                 busy={busy}
                 disabled={!passphrase}
-                style={styles.action}
+                style={largeText ? undefined : styles.action}
                 testID="passphrase-submit"
               />
             </Row>

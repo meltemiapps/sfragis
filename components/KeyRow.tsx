@@ -28,14 +28,8 @@ export function KeyRow({
     >
       <SealGlyph fingerprint={info.fingerprint} />
       <View style={styles.text}>
-        <Text style={type.label} numberOfLines={1}>
-          {keyLabel(info)}
-        </Text>
-        {info.email ? (
-          <Text style={type.note} numberOfLines={1}>
-            {info.email}
-          </Text>
-        ) : null}
+        <Text style={type.label}>{keyLabel(info)}</Text>
+        {info.email ? <Text style={type.note}>{info.email}</Text> : null}
         <Text style={styles.fingerprint}>{shortFingerprint(info.fingerprint)}</Text>
         <Text style={[type.note, dead && styles.dead]}>
           {kind}, {status.charAt(0).toLowerCase() + status.slice(1)}

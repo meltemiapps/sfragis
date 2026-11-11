@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { KeyRow } from '../components/KeyRow';
-import { Banner, Button, Row, Screen } from '../components/ui';
+import { Banner, Button, Row, Screen, useLargeText } from '../components/ui';
 import { useKeyring } from '../services/KeyringProvider';
 import { errorMessage } from '../utils/format';
 import { colors, space, type } from '../utils/theme';
@@ -10,6 +10,7 @@ import { colors, space, type } from '../utils/theme';
 export function KeyringScreen() {
   const router = useRouter();
   const { keys, status, statusMessage, retry, eraseAll } = useKeyring();
+  const largeText = useLargeText();
 
   if (status === 'loading') {
     return (
@@ -44,8 +45,8 @@ export function KeyringScreen() {
 
   const actions = (
     <Row>
-      <Button label="Generate" icon="add" onPress={() => router.push('/key/generate')} style={styles.action} />
-      <Button label="Import" icon="download-outline" tone="quiet" onPress={() => router.push('/key/import')} style={styles.action} />
+      <Button label="Generate" icon="add" onPress={() => router.push('/key/generate')} style={largeText ? undefined : styles.action} />
+      <Button label="Import" icon="download-outline" tone="quiet" onPress={() => router.push('/key/import')} style={largeText ? undefined : styles.action} />
     </Row>
   );
 

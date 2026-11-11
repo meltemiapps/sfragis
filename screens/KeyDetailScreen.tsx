@@ -5,7 +5,7 @@ import { Alert, Share, StyleSheet, Text, View } from 'react-native';
 
 import { usePassphrase } from '../components/PassphraseProvider';
 import { SealGlyph } from '../components/SealGlyph';
-import { Banner, Button, Fingerprint, Panel, Row, Screen } from '../components/ui';
+import { Banner, Button, Fingerprint, Panel, Row, Screen, TITLE_MAX_SCALE, useLargeText } from '../components/ui';
 import { OutputPanel } from '../components/OutputPanel';
 import { useKeyring } from '../services/KeyringProvider';
 import * as pgp from '../services/pgpService';
@@ -29,6 +29,7 @@ export function KeyDetailScreen() {
   const { fingerprint } = useLocalSearchParams<{ fingerprint: string }>();
   const { getKey, setTrust, removeKey, applyUpdate, setQrPayload } = useKeyring();
   const withPassphrase = usePassphrase();
+  const largeText = useLargeText();
   const [exportedPrivate, setExportedPrivate] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -130,10 +131,10 @@ export function KeyDetailScreen() {
 
   return (
     <Screen>
-      <View style={styles.header}>
+      <View style={[styles.header, largeText && styles.headerStacked]}>
         <SealGlyph fingerprint={info.fingerprint} size={72} />
         <View style={styles.headerText}>
-          <Text style={type.title} numberOfLines={2}>
+          <Text style={type.title} accessibilityRole="header" maxFontSizeMultiplier={TITLE_MAX_SCALE}>
             {keyLabel(info)}
           </Text>
           {info.email ? <Text style={type.note}>{info.email}</Text> : null}
@@ -193,6 +194,7 @@ export function KeyDetailScreen() {
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: space.lg },
-  headerText: { flex: 1 },
+  headerStacked: { flexDirection: 'column', alignItems: 'flex-start' },
+  headerText: { flex: 1, alignSelf: 'stretch' },
   fact: { gap: 1 },
 });

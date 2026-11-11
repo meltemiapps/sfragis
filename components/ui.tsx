@@ -10,6 +10,7 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
@@ -19,13 +20,24 @@ import { colors, mono, radius, space, type } from '../utils/theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
+/** Titles already start large; past 1.5x they break long names mid-word. Body text scales fully. */
+export const TITLE_MAX_SCALE = 1.5;
+
+/**
+ * True at the accessibility text sizes (Dynamic Type AX1 and up, about 1.3x),
+ * where side-by-side controls would break words mid-way, so they stack instead.
+ */
+export function useLargeText(): boolean {
+  return useWindowDimensions().fontScale >= 1.3;
+}
+
 /** Stable automation ID derived from a visible label, e.g. "Key block" -> "key-block". */
 export function slug(label: string): string {
   return label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
 export function Screen({ children, scroll = true, title }: { children: ReactNode; scroll?: boolean; title?: string }) {
-  const header = title ? <Text style={[type.title, styles.title]} accessibilityRole="header">{title}</Text> : null;
+  const header = title ? <Text style={[type.title, styles.title]} accessibilityRole="header" maxFontSizeMultiplier={TITLE_MAX_SCALE}>{title}</Text> : null;
   return (
     <SafeAreaView style={styles.screen} edges={title ? ['top', 'left', 'right'] : ['left', 'right']}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -159,8 +171,9 @@ export function Segmented<T extends string>({
   value: T;
   onChange: (next: T) => void;
 }) {
+  const large = useLargeText();
   return (
-    <View style={styles.segmented} accessibilityRole="tablist">
+    <View style={[styles.segmented, large && styles.stacked]} accessibilityRole="tablist">
       {options.map((option) => {
         const selected = option.value === value;
         return (
@@ -168,9 +181,10 @@ export function Segmented<T extends string>({
             key={option.value}
             testID={`segment-${slug(option.value)}`}
             accessibilityRole="tab"
+            accessibilityLabel={option.label}
             accessibilityState={{ selected }}
             onPress={() => onChange(option.value)}
-            style={[styles.segment, selected && styles.segmentSelected]}
+            style={[styles.segment, large && styles.segmentStacked, selected && styles.segmentSelected]}
           >
             <Text style={[type.label, selected && { color: colors.onAegean }]}>{option.label}</Text>
           </Pressable>
@@ -189,7 +203,8 @@ export function Fingerprint({ value }: { value: string }) {
 }
 
 export function Row({ children }: { children: ReactNode }) {
-  return <View style={styles.row}>{children}</View>;
+  const large = useLargeText();
+  return <View style={[styles.row, large && styles.stacked]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -231,6 +246,8 @@ const styles = StyleSheet.create({
   banner: { backgroundColor: colors.deep, borderLeftWidth: 3, padding: space.md, borderRadius: 4 },
   segmented: { flexDirection: 'row', backgroundColor: colors.deep, borderRadius: radius.control, padding: space.xs },
   segment: { flex: 1, minHeight: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 8 },
+  segmentStacked: { flex: 0, paddingVertical: space.sm, paddingHorizontal: space.md },
+  stacked: { flexDirection: 'column', flexWrap: 'nowrap', alignItems: 'stretch' },
   segmentSelected: { backgroundColor: colors.aegean },
   fingerprint: { fontFamily: mono, fontSize: 15, lineHeight: 24, color: colors.foam },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
