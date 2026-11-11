@@ -100,6 +100,7 @@ function EncryptPane() {
           <View style={styles.switchRow}>
             <Text style={type.label}>Sign as me</Text>
             <Switch
+              testID="switch-sign"
               accessibilityLabel="Sign as me"
               value={signing}
               onValueChange={setSigning}

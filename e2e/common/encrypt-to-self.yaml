@@ -19,7 +19,8 @@ appId: com.meltemiapps.sfragis
     when:
       true: ${SIGN == 'false'}
     commands:
-      - tapOn: "Sign as me"
+      - tapOn:
+          id: "switch-sign"
 - scrollUntilVisible:
     centerElement: true
     visibilityPercentage: 100

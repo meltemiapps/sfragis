@@ -7,6 +7,7 @@ env:
 ---
 - runFlow: ../common/fresh-launch.yaml
 - runFlow: ../common/generate-key.yaml
+- tapOn: "Back"
 - tapOn:
     id: "tab-settings"
 - scrollUntilVisible:
@@ -25,7 +26,10 @@ env:
 - tapOn:
     id: "button-erase-keyring"
 - assertVisible: "1 stored key\\(s\\) will be permanently deleted\\."
-- tapOn: "Erase"
+# The alert's destructive button sits to the right of "Keep".
+- tapOn:
+    text: "Erase"
+    rightOf: "Keep"
 - tapOn:
     id: "tab-keyring"
 - extendedWaitUntil:
