@@ -1,7 +1,7 @@
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import { useIsFocused, useRouter } from 'expo-router';
 import { useCallback, useRef, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Alert, Linking, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { SealGlyph } from '../components/SealGlyph';
 import { Banner, Button, Fingerprint, Panel, Screen } from '../components/ui';
@@ -42,7 +42,7 @@ export function ScannerScreen() {
   // Macs and some iPads have only a front camera, so the scanner can switch.
   const [facing, setFacing] = useState<Facing>('back');
   // Facings found to have no camera. A Mac without a camera reports no mount error, so the
-  // lens list is checked once the view is ready.
+  // lens list is checked on iOS once the view is ready.
   const missing = useRef(new Set<Facing>());
   const [canSwitch, setCanSwitch] = useState(true);
   const camera = useRef<CameraView>(null);
@@ -58,8 +58,11 @@ export function ScannerScreen() {
     else setFacing(other);
   };
 
+  // iOS only: Android reports a missing camera through onMountError. A failed lookup is not
+  // evidence of a missing camera, so only an empty list counts.
   const checkLenses = async (side: Facing) => {
-    const lenses = await camera.current?.getAvailableLensesAsync().catch(() => []);
+    if (Platform.OS !== 'ios') return;
+    const lenses = await camera.current?.getAvailableLensesAsync().catch(() => null);
     if (lenses && lenses.length === 0) markMissing(side);
   };
 
