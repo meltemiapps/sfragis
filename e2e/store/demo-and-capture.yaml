@@ -1,0 +1,90 @@
+# App Store screenshots with invented demo data. Run through e2e/screenshots.sh,
+# which sets the status bar and copies the images into store/screenshots/.
+appId: com.meltemiapps.sfragis
+name: Store screenshots
+env:
+  KEY_NAME: Maria Vlachou
+  KEY_EMAIL: maria.vlachou@example.org
+  KEY_PASS: demo only, not a real passphrase
+  MESSAGE: "Kalimera Nikos! The ferry to Naxos leaves Piraeus at 07:30. I'll keep two seats by the window."
+---
+- runFlow: ../common/fresh-launch.yaml
+
+# Three contacts (public keys only), imported by paste.
+- runFlow:
+    file: import-contact.yaml
+    env:
+      KEY_TEXT: ${CONTACT_1}
+- runFlow:
+    file: import-contact.yaml
+    env:
+      KEY_TEXT: ${CONTACT_2}
+- runFlow:
+    file: import-contact.yaml
+    env:
+      KEY_TEXT: ${CONTACT_3}
+
+# Nikos's fingerprint has been compared in person.
+- tapOn: "Nikos Karras, .*contact.*"
+- scrollUntilVisible:
+    centerElement: true
+    element:
+      id: "button-i-compared-the-fingerprint"
+- tapOn:
+    id: "button-i-compared-the-fingerprint"
+- tapOn: "Back"
+
+# One key of her own.
+- runFlow: ../common/generate-key.yaml
+- scrollUntilVisible:
+    element: "Fingerprint"
+    direction: UP
+- takeScreenshot: 02-key-detail
+- tapOn: "Back"
+- waitForAnimationToEnd
+- takeScreenshot: 01-keyring
+
+# Encrypt a signed message to Nikos.
+- tapOn:
+    id: "tab-encrypt"
+- tapOn:
+    id: "segment-encrypt"
+- tapOn: "Nikos Karras, .*"
+- tapOn:
+    id: "field-message"
+- inputText: ${MESSAGE}
+- tapOn: "Recipients"
+- waitForAnimationToEnd
+- takeScreenshot: 03-encrypt
+- scrollUntilVisible:
+    centerElement: true
+    element:
+      id: "button-encrypt"
+- tapOn:
+    id: "button-encrypt"
+- inputText: ${KEY_PASS}
+- tapOn:
+    id: "passphrase-submit"
+# The output panel appears below the fold once encryption finishes.
+- scrollUntilVisible:
+    centerElement: true
+    timeout: 30000
+    element:
+      id: "button-copy"
+- tapOn:
+    id: "button-copy"
+
+# Decrypt it again (the sender's own key is always a recipient).
+- runFlow: ../common/paste-and-decrypt.yaml
+- inputText: ${KEY_PASS}
+- tapOn:
+    id: "passphrase-submit"
+- extendedWaitUntil:
+    visible: "Signed by Maria Vlachou\\."
+    timeout: 30000
+- scrollUntilVisible:
+    centerElement: true
+    element: "Signed by Maria Vlachou\\."
+- waitForAnimationToEnd
+# 04-decrypt is captured by e2e/screenshots.sh with simctl: while plaintext is on
+# screen the app blocks the iOS screenshot API that Maestro uses.

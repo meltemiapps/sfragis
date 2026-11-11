@@ -16,6 +16,11 @@ appId: com.meltemiapps.sfragis
       id: "field-encrypted-message"
       text: "-----BEGIN PGP MESSAGE-----[\\s\\S]*"
     timeout: 10000
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-decrypt"
 - tapOn:
     id: "button-decrypt"
 - extendedWaitUntil:

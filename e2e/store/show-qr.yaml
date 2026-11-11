@@ -1,0 +1,19 @@
+# Second half of the store capture: the QR display of Maria's public key.
+# Captured with simctl by e2e/screenshots.sh (screen capture stays blocked while
+# the decrypted message from the first half is still mounted).
+appId: com.meltemiapps.sfragis
+---
+- tapOn:
+    id: "tab-keyring"
+- tapOn: "Maria Vlachou, Your key.*"
+- scrollUntilVisible:
+    centerElement: true
+    element:
+      id: "button-show-qr"
+- tapOn:
+    id: "button-show-qr"
+- waitForAnimationToEnd
+# Hold the sequence on its first frame so the image is stable.
+- tapOn:
+    id: "button-pause"
+    optional: true

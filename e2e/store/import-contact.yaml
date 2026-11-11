@@ -1,0 +1,20 @@
+appId: com.meltemiapps.sfragis
+---
+- tapOn:
+    id: "tab-keyring"
+- tapOn:
+    id: "button-import"
+- tapOn:
+    id: "field-key-block"
+- inputText: ${KEY_TEXT}
+- tapOn: "Paste an armored key block.*"
+- scrollUntilVisible:
+    centerElement: true
+    element:
+      id: "button-import-key"
+- tapOn:
+    id: "button-import-key"
+- extendedWaitUntil:
+    visible: "Fingerprint"
+    timeout: 30000
+- tapOn: "Back"

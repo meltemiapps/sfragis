@@ -64,10 +64,10 @@ Record the device, OS version, build number and result for each check.
 
 | # | Check | Expected |
 |---|---|---|
-| 21 | Android: decrypt a message and try a screenshot and a screen recording. | The screenshot is blocked or black. |
-| 22 | Android: export a private key and try a screenshot. | Blocked. After leaving the screen, screenshots work again. |
+| 21 | Decrypt a message and try a screenshot and a screen recording (iOS and Android). | Android blocks the capture. On iOS the capture is blank where the app should be. |
+| 22 | Export a private key and try a screenshot (iOS and Android). | Blocked or blank. After leaving the key screen, screenshots work again. |
 | 23 | iOS and Android: with plaintext or a private key on screen, open the app switcher. | The app preview is covered by the plain background. |
-| 24 | iOS: take a screenshot while plaintext is shown. | iOS has no screenshot block. Confirm and note it as a known platform limit (it is not a bug). |
+| 24 | After decrypting, switch to the Keyring tab and take a screenshot. Then tap **Clear** on the Decrypt pane and try again. | The first capture is blank or blocked (the decrypted text is still mounted). After Clear, captures work. |
 
 ## Release build only
 
