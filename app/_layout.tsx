@@ -13,6 +13,8 @@ const headerOptions = {
   headerTintColor: colors.foam,
   headerShadowVisible: false,
   contentStyle: { backgroundColor: colors.abyss },
+  // Without this, iOS labels the back button with the route group name "(tabs)".
+  headerBackTitle: 'Back',
 };
 
 export default function RootLayout() {
