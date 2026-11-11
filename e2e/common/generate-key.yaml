@@ -1,0 +1,44 @@
+# Generates an Ed25519 key for an invented owner and lands on its detail screen.
+# Env: KEY_NAME, KEY_EMAIL, KEY_PASS (a test-only passphrase, never a real one).
+appId: com.meltemiapps.sfragis
+---
+- tapOn:
+    id: "tab-keyring"
+- tapOn:
+    id: "button-generate"
+- tapOn:
+    id: "field-name"
+- inputText: ${KEY_NAME}
+- tapOn:
+    id: "field-email"
+- inputText: ${KEY_EMAIL}
+- tapOn:
+    id: "segment-ed25519"
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "field-passphrase"
+- tapOn:
+    id: "field-passphrase"
+- inputText: ${KEY_PASS}
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "field-confirm-passphrase"
+- tapOn:
+    id: "field-confirm-passphrase"
+- inputText: ${KEY_PASS}
+- pressKey: Enter
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-generate-key"
+- tapOn:
+    id: "button-generate-key"
+- extendedWaitUntil:
+    visible: "Fingerprint"
+    timeout: 60000
+- assertVisible: ${KEY_NAME}

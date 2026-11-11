@@ -1,0 +1,30 @@
+appId: com.meltemiapps.sfragis
+name: (d) Import a public key by pasting text
+# Env: CONTACT_KEY is the armored public key from e2e/fixtures/nikos-karras.asc (passed by e2e/run.sh).
+---
+- runFlow: ../common/fresh-launch.yaml
+- tapOn:
+    id: "button-import"
+- tapOn:
+    id: "field-key-block"
+- inputText: ${CONTACT_KEY}
+- tapOn: "Paste an armored key block.*"
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-import-key"
+- tapOn:
+    id: "button-import-key"
+- extendedWaitUntil:
+    visible: "Fingerprint"
+    timeout: 30000
+- assertVisible: "Nikos Karras"
+- assertVisible: "nikos.karras@example.org"
+- assertVisible: "9C45 6443 2B65 E4E3 EBA4 F952 4C12 A382 B103 6270"
+- assertVisible: "Compare this fingerprint with its owner.*"
+- tapOn:
+    id: "button-i-compared-the-fingerprint"
+- assertNotVisible: "Compare this fingerprint with its owner.*"
+- tapOn: "Back|Keyring"
+- assertVisible: "Nikos Karras, Verified contact.*"

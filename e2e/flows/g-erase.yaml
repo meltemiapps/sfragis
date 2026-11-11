@@ -1,0 +1,38 @@
+appId: com.meltemiapps.sfragis
+name: (g) Settings > Erase keyring
+env:
+  KEY_NAME: Maria Vlachou
+  KEY_EMAIL: maria.vlachou@example.org
+  KEY_PASS: e2e only, not a real passphrase
+---
+- runFlow: ../common/fresh-launch.yaml
+- runFlow: ../common/generate-key.yaml
+- tapOn:
+    id: "tab-settings"
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-erase-keyring"
+# The button stays disabled until the confirmation word is typed.
+- tapOn:
+    id: "button-erase-keyring"
+- assertNotVisible: "Erase everything\\?"
+- tapOn:
+    id: "field-type-erase-to-confirm"
+- inputText: "erase"
+- pressKey: Enter
+- tapOn:
+    id: "button-erase-keyring"
+- assertVisible: "1 stored key\\(s\\) will be permanently deleted\\."
+- tapOn: "Erase"
+- tapOn:
+    id: "tab-keyring"
+- extendedWaitUntil:
+    visible: "No keys yet"
+    timeout: 10000
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible: "No keys yet"
+    timeout: 30000

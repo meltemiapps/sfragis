@@ -1,0 +1,36 @@
+appId: com.meltemiapps.sfragis
+name: (c) Wrong passphrase shows an error and allows a retry
+env:
+  KEY_NAME: Maria Vlachou
+  KEY_EMAIL: maria.vlachou@example.org
+  KEY_PASS: e2e only, not a real passphrase
+  MESSAGE: Meet at the harbour cafe.
+  SIGN: "false"
+---
+- runFlow: ../common/fresh-launch.yaml
+- runFlow: ../common/generate-key.yaml
+- runFlow: ../common/encrypt-to-self.yaml
+- runFlow: ../common/paste-and-decrypt.yaml
+- inputText: "definitely the wrong passphrase"
+- tapOn:
+    id: "passphrase-submit"
+- extendedWaitUntil:
+    visible: "That passphrase does not unlock this key\\."
+    timeout: 30000
+# The prompt stays open with an empty field, so the user can try again.
+- assertVisible:
+    id: "field-key-passphrase"
+- assertNotVisible: "Decrypted message"
+- tapOn:
+    id: "field-key-passphrase"
+- inputText: ${KEY_PASS}
+- tapOn:
+    id: "passphrase-submit"
+- extendedWaitUntil:
+    visible: "This message is not signed, so the sender cannot be confirmed\\."
+    timeout: 30000
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element: "Decrypted message"
+- assertVisible: ${MESSAGE}

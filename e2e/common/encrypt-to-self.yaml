@@ -1,0 +1,46 @@
+# From the Encrypt tab, encrypts MESSAGE to the generated key, signed or unsigned.
+# Env: KEY_NAME, KEY_PASS, MESSAGE, SIGN ("true" or "false").
+appId: com.meltemiapps.sfragis
+---
+# Generate lands on the pushed key detail screen, which hides the tab bar.
+- tapOn:
+    text: "Back"
+    optional: true
+- tapOn:
+    id: "tab-encrypt"
+- tapOn:
+    id: "segment-encrypt"
+- tapOn: "${KEY_NAME}, Your key.*"
+- tapOn:
+    id: "field-message"
+- inputText: ${MESSAGE}
+- tapOn: "Recipients"
+- runFlow:
+    when:
+      true: ${SIGN == 'false'}
+    commands:
+      - tapOn: "Sign as me"
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-encrypt"
+- tapOn:
+    id: "button-encrypt"
+- runFlow:
+    when:
+      true: ${SIGN != 'false'}
+    commands:
+      - inputText: ${KEY_PASS}
+      - tapOn:
+          id: "passphrase-submit"
+- extendedWaitUntil:
+    visible: "-----BEGIN PGP MESSAGE-----[\\s\\S]*"
+    timeout: 30000
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-copy"
+- tapOn:
+    id: "button-copy"

@@ -1,0 +1,25 @@
+appId: com.meltemiapps.sfragis
+name: (b) Generate Ed25519, encrypt and sign, decrypt and verify
+env:
+  KEY_NAME: Maria Vlachou
+  KEY_EMAIL: maria.vlachou@example.org
+  KEY_PASS: e2e only, not a real passphrase
+  MESSAGE: Kalimera Nikos. The ferry leaves Piraeus at 07:30.
+  SIGN: "true"
+---
+- runFlow: ../common/fresh-launch.yaml
+- runFlow: ../common/generate-key.yaml
+- assertVisible: "Ed25519"
+- runFlow: ../common/encrypt-to-self.yaml
+- runFlow: ../common/paste-and-decrypt.yaml
+- inputText: ${KEY_PASS}
+- tapOn:
+    id: "passphrase-submit"
+- extendedWaitUntil:
+    visible: "Signed by Maria Vlachou\\."
+    timeout: 30000
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element: "Decrypted message"
+- assertVisible: ${MESSAGE}

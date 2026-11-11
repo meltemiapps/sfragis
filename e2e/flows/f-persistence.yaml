@@ -1,0 +1,33 @@
+appId: com.meltemiapps.sfragis
+name: (f) Keys persist across a relaunch
+env:
+  KEY_NAME: Maria Vlachou
+  KEY_EMAIL: maria.vlachou@example.org
+  KEY_PASS: e2e only, not a real passphrase
+---
+- runFlow: ../common/fresh-launch.yaml
+- runFlow: ../common/generate-key.yaml
+- tapOn: "Back|Keyring"
+- assertVisible: "Maria Vlachou, Your key.*"
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible: "Maria Vlachou, Your key.*"
+    timeout: 30000
+- assertNotVisible: "No keys yet"
+# The persisted private key still unlocks with its passphrase.
+- tapOn: "Maria Vlachou, Your key.*"
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-export-private-key"
+- tapOn:
+    id: "button-export-private-key"
+- tapOn: "Continue"
+- inputText: ${KEY_PASS}
+- tapOn:
+    id: "passphrase-submit"
+- extendedWaitUntil:
+    visible: "-----BEGIN PGP PRIVATE KEY BLOCK-----[\\s\\S]*"
+    timeout: 30000

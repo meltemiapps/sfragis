@@ -1,0 +1,24 @@
+# Switches to Decrypt, pastes the copied message and taps Decrypt (passphrase prompt opens).
+appId: com.meltemiapps.sfragis
+---
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "segment-decrypt"
+    direction: UP
+- tapOn:
+    id: "segment-decrypt"
+- tapOn:
+    id: "button-paste"
+- extendedWaitUntil:
+    visible:
+      id: "field-encrypted-message"
+      text: "-----BEGIN PGP MESSAGE-----[\\s\\S]*"
+    timeout: 10000
+- tapOn:
+    id: "button-decrypt"
+- extendedWaitUntil:
+    visible:
+      id: "field-key-passphrase"
+    timeout: 10000

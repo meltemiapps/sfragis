@@ -1,0 +1,9 @@
+# Clean app data and keychain (on the dedicated Sfragis simulators only), then open the Keyring.
+appId: com.meltemiapps.sfragis
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- extendedWaitUntil:
+    visible: "No keys yet"
+    timeout: 30000

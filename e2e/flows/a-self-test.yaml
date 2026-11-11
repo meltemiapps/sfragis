@@ -1,0 +1,21 @@
+appId: com.meltemiapps.sfragis
+name: (a) Settings > Run self-test
+tags: [selftest]
+---
+- runFlow: ../common/fresh-launch.yaml
+- tapOn:
+    id: "tab-settings"
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-run-self-test"
+- tapOn:
+    id: "button-run-self-test"
+- extendedWaitUntil:
+    visible: "Passed\\. Ed25519 \\d+ ms, RSA 4096 \\d+ ms\\."
+    timeout: 180000
+- copyTextFrom: "Passed\\. Ed25519 \\d+ ms, RSA 4096 \\d+ ms\\."
+- evalScript: ${console.log('SELFTEST_RESULT ' + maestro.copiedText)}
+- assertNotVisible: "Failed:.*"
+- takeScreenshot: self-test

@@ -1,0 +1,47 @@
+appId: com.meltemiapps.sfragis
+name: (e) Revoke and delete a key
+env:
+  KEY_NAME: Maria Vlachou
+  KEY_EMAIL: maria.vlachou@example.org
+  KEY_PASS: e2e only, not a real passphrase
+---
+- runFlow: ../common/fresh-launch.yaml
+- runFlow: ../common/generate-key.yaml
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-revoke-key"
+- tapOn:
+    id: "button-revoke-key"
+- tapOn: "I no longer use it"
+- inputText: ${KEY_PASS}
+- tapOn:
+    id: "passphrase-submit"
+- extendedWaitUntil:
+    visible: "Key revoked"
+    timeout: 30000
+- tapOn: "OK"
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element: "This key has been revoked and must not be used\\."
+    direction: UP
+- assertVisible: "Revoked"
+- assertNotVisible:
+    id: "button-revoke-key"
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-delete-key"
+- tapOn:
+    id: "button-delete-key"
+- tapOn: "Delete"
+- extendedWaitUntil:
+    visible: "Delete permanently\\?"
+    timeout: 5000
+- tapOn: "Delete"
+- extendedWaitUntil:
+    visible: "No keys yet"
+    timeout: 10000
