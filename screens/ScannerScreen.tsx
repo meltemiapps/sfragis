@@ -11,6 +11,8 @@ import { FrameAssembler, isFrame } from '../services/qrTransport';
 import { errorMessage, groupFingerprint, keyLabel } from '../utils/format';
 import { colors, space, type } from '../utils/theme';
 
+type Facing = 'back' | 'front';
+
 type Outcome =
   | { kind: 'imported'; fingerprint: string; wasKnown: boolean }
   | { kind: 'verified'; fingerprint: string }
@@ -38,10 +40,28 @@ export function ScannerScreen() {
   const [progress, setProgress] = useState<{ received: number; total: number } | null>(null);
   const [cameraFailed, setCameraFailed] = useState(false);
   // Macs and some iPads have only a front camera, so the scanner can switch.
-  const [facing, setFacing] = useState<'back' | 'front'>('back');
+  const [facing, setFacing] = useState<Facing>('back');
+  // Facings found to have no camera. A Mac without a camera reports no mount error, so the
+  // lens list is checked once the view is ready.
+  const missing = useRef(new Set<Facing>());
+  const [canSwitch, setCanSwitch] = useState(true);
+  const camera = useRef<CameraView>(null);
   const assembler = useRef(new FrameAssembler());
   const lastValue = useRef<string | null>(null);
   const handling = useRef(false);
+
+  const markMissing = (side: Facing) => {
+    missing.current.add(side);
+    setCanSwitch(false);
+    const other: Facing = side === 'back' ? 'front' : 'back';
+    if (missing.current.has(other)) setCameraFailed(true);
+    else setFacing(other);
+  };
+
+  const checkLenses = async (side: Facing) => {
+    const lenses = await camera.current?.getAvailableLensesAsync().catch(() => []);
+    if (lenses && lenses.length === 0) markMissing(side);
+  };
 
   const restart = () => {
     assembler.current.reset();
@@ -180,7 +200,7 @@ export function ScannerScreen() {
     return (
       <CameraFallback
         title="No camera available"
-        detail="This device could not start a camera. Import keys as text or files instead."
+        detail="Sfragis could not find a camera on this device. Import keys as text or files instead."
       />
     );
   }
@@ -220,11 +240,15 @@ export function ScannerScreen() {
       <View style={styles.viewfinder}>
         {isFocused ? (
           <CameraView
+            // Remount on switch so onCameraReady fires and the new side's lenses are checked.
+            key={facing}
+            ref={camera}
             style={StyleSheet.absoluteFill}
             facing={facing}
             barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
             onBarcodeScanned={onBarcode}
-            onMountError={() => (facing === 'back' ? setFacing('front') : setCameraFailed(true))}
+            onCameraReady={() => void checkLenses(facing)}
+            onMountError={() => markMissing(facing)}
           />
         ) : null}
       </View>
@@ -240,12 +264,14 @@ export function ScannerScreen() {
       ) : (
         <Text style={type.note}>Point the camera at a public key, an encrypted message or a fingerprint code.</Text>
       )}
-      <Button
-        label="Switch camera"
-        icon="camera-reverse-outline"
-        tone="quiet"
-        onPress={() => setFacing((current) => (current === 'back' ? 'front' : 'back'))}
-      />
+      {canSwitch ? (
+        <Button
+          label="Switch camera"
+          icon="camera-reverse-outline"
+          tone="quiet"
+          onPress={() => setFacing((current) => (current === 'back' ? 'front' : 'back'))}
+        />
+      ) : null}
     </Screen>
   );
 }

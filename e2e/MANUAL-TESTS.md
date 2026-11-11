@@ -32,7 +32,7 @@ Record the device, OS version, build number and result for each check.
 | # | Check | Expected |
 |---|---|---|
 | 8 | On the Scan tab, tap **Switch camera**. | The preview flips between back and front cameras. Scanning still works on each. |
-| 9 | Mac (Designed for iPad) and front-camera-only iPads. | The front camera is used or can be selected, and a QR held up to it scans. |
+| 9 | Mac (Designed for iPad) and front-camera-only iPads. | The front camera starts on its own and **Switch camera** is hidden. A QR held up to it scans. On a Mac with no camera, such as a Mac mini without one attached, the tab shows "No camera available" with **Import by text or file**. |
 
 ## Fingerprint verification
 
