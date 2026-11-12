@@ -14,6 +14,7 @@
     ],
     "ios": {
       "bundleIdentifier": "com.meltemiapps.sfragis",
+      "appleTeamId": "6Q7HCLY6C6",
       "buildNumber": "1",
       "supportsTablet": true,
       "infoPlist": {
