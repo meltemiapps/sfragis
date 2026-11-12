@@ -99,7 +99,7 @@ e2e/screenshots.sh                                # App Store screenshots
 
 - [ ] Confirm the bundle ID `com.meltemiapps.sfragis`. It cannot be changed after first upload.
 - [x] Set `PUBLISHER_URL` and `SOURCE_CODE_URL` in `utils/constants.ts`.
-- [x] Set the iOS `buildNumber` in app.json (currently `1`). Raise it for every upload.
+- [x] Set the iOS `buildNumber` in app.json (currently `2`). Raise it for every upload.
 - [x] Pass `npm test -- --rsa`, `npm run test:gpg` and every flow in `e2e/flows` on the iPhone 17 Pro Max and iPad Pro 13-inch Simulators.
 - [x] Capture App Store screenshots for 6.9-inch iPhone and 13-inch iPad (`e2e/screenshots.sh`, saved in `store/screenshots/`).
 - [ ] Run the self-test on a physical iPhone, an Android device and an Apple-silicon Mac.
@@ -107,7 +107,7 @@ e2e/screenshots.sh                                # App Store screenshots
 - [ ] Confirm the release APK has no `INTERNET` permission: `aapt dump permissions app-release.apk`.
 - [ ] Commission an independent security review before promoting the app for high-risk use.
 - [ ] Complete trademark clearance through counsel before filing or launch.
-- [ ] Complete App Store Connect export-compliance answers. `ITSAppUsesNonExemptEncryption` is set to `true`.
+- [ ] Answer the export-compliance questions for each build in App Store Connect (the app uses non-exempt encryption). `ITSAppUsesNonExemptEncryption` is deliberately not set in app.json: with it set to `true`, the upload is rejected until approved documentation's `ITSEncryptionExportComplianceCode` is added too. Once you have that code, set both keys under `ios.infoPlist`.
 - [ ] Take advice on French encryption declaration requirements and US export classification.
 - [ ] Publish the corresponding source and `THIRD_PARTY_NOTICES.md`, and take advice on LGPL obligations for App Store distribution.
 - [ ] In App Store Connect, enable availability on Apple-silicon Mac.
