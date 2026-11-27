@@ -13,8 +13,8 @@ env:
 - runFlow: ../common/encrypt-to-self.yaml
 - runFlow: ../common/paste-and-decrypt.yaml
 - inputText: ${KEY_PASS}
-- tapOn:
-    id: "passphrase-submit"
+# Submit with Return: the passphrase sheet moves with the keyboard, so a tap on the button can miss.
+- pressKey: Enter
 - extendedWaitUntil:
     visible: "Signed by Maria Vlachou\\."
     timeout: 30000

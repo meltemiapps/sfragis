@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { KeyRow } from '../components/KeyRow';
-import { Banner, Button, Row, Screen, useLargeText } from '../components/ui';
+import { ActionGroup, Banner, Button, Screen } from '../components/ui';
 import { useKeyring } from '../services/KeyringProvider';
 import { errorMessage } from '../utils/format';
 import { colors, space, type } from '../utils/theme';
@@ -10,7 +10,6 @@ import { colors, space, type } from '../utils/theme';
 export function KeyringScreen() {
   const router = useRouter();
   const { keys, status, statusMessage, retry, eraseAll } = useKeyring();
-  const largeText = useLargeText();
 
   if (status === 'loading') {
     return (
@@ -44,17 +43,20 @@ export function KeyringScreen() {
   }
 
   const actions = (
-    <Row>
-      <Button label="Generate" icon="add" onPress={() => router.push('/key/generate')} style={largeText ? undefined : styles.action} />
-      <Button label="Import" icon="download-outline" tone="quiet" onPress={() => router.push('/key/import')} style={largeText ? undefined : styles.action} />
-    </Row>
+    <ActionGroup
+      actions={[
+        { label: 'Import', icon: 'download-outline', onPress: () => router.push('/key/import') },
+        { label: 'Generate', icon: 'add', onPress: () => router.push('/key/generate') },
+      ]}
+    />
   );
 
   return (
-    <Screen title="Keyring" scroll={false}>
-      {actions}
+    <Screen title="Keyring" scroll={false} actions={actions}>
       <FlatList
         style={styles.list}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={styles.listContent}
         data={keys}
         keyExtractor={(item) => item.info.fingerprint}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -67,6 +69,7 @@ export function KeyringScreen() {
             <Text style={type.note}>
               Generate your own key to receive encrypted messages, or import a contact’s public key to write to them.
             </Text>
+            <Button label="Generate your key" icon="add" onPress={() => router.push('/key/generate')} />
           </View>
         }
       />
@@ -75,8 +78,8 @@ export function KeyringScreen() {
 }
 
 const styles = StyleSheet.create({
-  action: { flex: 1 },
-  list: { flex: 1 },
+  list: { flex: 1, marginHorizontal: -space.lg, marginBottom: -space.xxl },
+  listContent: { paddingHorizontal: space.lg, paddingBottom: space.xxl },
   separator: { height: space.sm },
-  empty: { gap: space.sm, paddingTop: space.xl },
+  empty: { gap: space.md, paddingTop: space.xl },
 });

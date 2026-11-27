@@ -2,12 +2,13 @@ import Constants from 'expo-constants';
 import { useState } from 'react';
 import { Alert, Linking, Text } from 'react-native';
 
+import { SolidPanel } from '../components/Glass';
 import { Banner, Button, Field, Panel, Screen } from '../components/ui';
 import { useKeyring } from '../services/KeyringProvider';
 import { runSelfTest } from '../services/pgpService';
 import { APP_NAME, PUBLISHER_NAME, PUBLISHER_URL, SOURCE_CODE_URL } from '../utils/constants';
 import { errorMessage, nextPaint } from '../utils/format';
-import { type } from '../utils/theme';
+import { colors, type } from '../utils/theme';
 
 const ERASE_WORD = 'erase';
 
@@ -78,7 +79,13 @@ export function SettingsScreen() {
         <Text style={type.heading}>Check this device</Text>
         <Text style={type.note}>Generates temporary keys, encrypts, signs, decrypts and verifies. Nothing is stored.</Text>
         <Button label="Run self-test" tone="quiet" busy={testing} onPress={selfTest} />
-        {testResult ? <Banner tone={testResult.ok ? 'ok' : 'bad'}>{testResult.message}</Banner> : null}
+        {testResult ? (
+          <SolidPanel>
+            <Text style={[type.body, { color: testResult.ok ? colors.leaf : colors.wax }]} accessibilityRole="alert">
+              {testResult.message}
+            </Text>
+          </SolidPanel>
+        ) : null}
       </Panel>
 
       <Panel>

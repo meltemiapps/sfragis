@@ -26,8 +26,11 @@ env:
     id: "button-export-private-key"
 - tapOn: "Continue"
 - inputText: ${KEY_PASS}
-- tapOn:
-    id: "passphrase-submit"
-- extendedWaitUntil:
-    visible: "-----BEGIN PGP PRIVATE KEY BLOCK-----[\\s\\S]*"
+# Submit with Return: the passphrase sheet moves with the keyboard, so a tap on the button can miss.
+- pressKey: Enter
+# The exported block appears below the fold and is taller than the screen, so scroll to it
+# and accept it once part of it is on screen.
+- scrollUntilVisible:
+    visibilityPercentage: 10
     timeout: 30000
+    element: "-----BEGIN PGP PRIVATE KEY BLOCK-----[\\s\\S]*"

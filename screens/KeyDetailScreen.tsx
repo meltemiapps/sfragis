@@ -3,9 +3,10 @@ import * as ScreenCapture from 'expo-screen-capture';
 import { useEffect, useState } from 'react';
 import { Alert, Share, StyleSheet, Text, View } from 'react-native';
 
+import { SolidPanel } from '../components/Glass';
 import { usePassphrase } from '../components/PassphraseProvider';
 import { SealGlyph } from '../components/SealGlyph';
-import { Banner, Button, Fingerprint, Panel, Row, Screen, TITLE_MAX_SCALE, useLargeText } from '../components/ui';
+import { Banner, Button, Fingerprint, Row, Screen, TITLE_MAX_SCALE, useLargeText } from '../components/ui';
 import { OutputPanel } from '../components/OutputPanel';
 import { useKeyring } from '../services/KeyringProvider';
 import * as pgp from '../services/pgpService';
@@ -148,14 +149,15 @@ export function KeyDetailScreen() {
       ) : null}
       {problem ? <Banner tone="bad">{problem}</Banner> : null}
 
-      <Panel>
+      {/* Fingerprint and key details are read and compared, so they never sit on glass. */}
+      <SolidPanel>
         <Text style={type.note}>Fingerprint</Text>
         <Fingerprint value={groupFingerprint(info.fingerprint)} />
         <Fact label="Algorithm" value={info.algorithm} />
         <Fact label="Created" value={formatDate(info.createdAt)} />
         <Fact label="Status" value={keyStatusLabel(info)} />
         <Fact label={info.userIds.length > 1 ? 'User IDs' : 'User ID'} value={info.userIds.join('\n')} />
-      </Panel>
+      </SolidPanel>
 
       <Text style={type.heading}>Share</Text>
       <Row>

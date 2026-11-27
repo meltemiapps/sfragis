@@ -1,9 +1,10 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { PgpError } from '../services/pgpService';
 import { errorMessage, nextPaint } from '../utils/format';
-import { colors, radius, space, type } from '../utils/theme';
+import { glass, space, type } from '../utils/theme';
+import { GlassSurface } from './Glass';
 import { Button, PassphraseField, Row, useLargeText } from './ui';
 
 interface Request {
@@ -99,32 +100,35 @@ export function PassphraseProvider({ children }: { children: ReactNode }) {
     <PassphraseContext.Provider value={value}>
       {children}
       <Modal visible={request !== null} transparent animationType="fade" onRequestClose={cancel}>
-        <View style={styles.backdrop}>
-          <View style={styles.sheet} accessibilityViewIsModal>
-            <Text style={type.heading}>{request?.title}</Text>
-            <Text style={type.note}>{request?.detail}</Text>
-            <PassphraseField
-              label="Key passphrase"
-              value={passphrase}
-              onChangeText={setPassphrase}
-              onSubmitEditing={submit}
-              autoFocus
-              error={problem}
-              editable={!busy}
-            />
-            <Row>
-              <Button label="Cancel" tone="quiet" onPress={cancel} disabled={busy} style={largeText ? undefined : styles.action} testID="passphrase-cancel" />
-              <Button
-                label={request?.actionLabel ?? 'Unlock'}
-                onPress={submit}
-                busy={busy}
-                disabled={!passphrase}
-                style={largeText ? undefined : styles.action}
-                testID="passphrase-submit"
+        {/* A floating glass sheet at the bottom, lifted above the keyboard the field opens. */}
+        <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <GlassSurface radius={glass.radius.sheet} style={styles.sheetSurface}>
+            <View style={styles.sheet} accessibilityViewIsModal>
+              <Text style={type.heading}>{request?.title}</Text>
+              <Text style={type.note}>{request?.detail}</Text>
+              <PassphraseField
+                label="Key passphrase"
+                value={passphrase}
+                onChangeText={setPassphrase}
+                onSubmitEditing={submit}
+                autoFocus
+                error={problem}
+                editable={!busy}
               />
-            </Row>
-          </View>
-        </View>
+              <Row>
+                <Button label="Cancel" tone="quiet" onPress={cancel} disabled={busy} style={largeText ? undefined : styles.action} testID="passphrase-cancel" />
+                <Button
+                  label={request?.actionLabel ?? 'Unlock'}
+                  onPress={submit}
+                  busy={busy}
+                  disabled={!passphrase}
+                  style={largeText ? undefined : styles.action}
+                  testID="passphrase-submit"
+                />
+              </Row>
+            </View>
+          </GlassSurface>
+        </KeyboardAvoidingView>
       </Modal>
     </PassphraseContext.Provider>
   );
@@ -137,15 +141,8 @@ export function usePassphrase(): WithPassphrase {
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(4, 12, 18, 0.82)', justifyContent: 'center', padding: space.lg },
-  sheet: {
-    backgroundColor: colors.deep,
-    borderRadius: radius.panel,
-    padding: space.xl,
-    gap: space.md,
-    width: '100%',
-    maxWidth: 460,
-    alignSelf: 'center',
-  },
+  backdrop: { flex: 1, backgroundColor: 'rgba(4, 12, 18, 0.55)', justifyContent: 'flex-end', padding: space.sm },
+  sheetSurface: { width: '100%', maxWidth: 460, alignSelf: 'center', marginBottom: space.lg },
+  sheet: { padding: space.xl, gap: space.md },
   action: { flex: 1 },
 });

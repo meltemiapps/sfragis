@@ -12,8 +12,8 @@ env:
 - runFlow: ../common/encrypt-to-self.yaml
 - runFlow: ../common/paste-and-decrypt.yaml
 - inputText: "definitely the wrong passphrase"
-- tapOn:
-    id: "passphrase-submit"
+# Submit with Return: the passphrase sheet moves with the keyboard, so a tap on the button can miss.
+- pressKey: Enter
 - extendedWaitUntil:
     visible: "That passphrase does not unlock this key\\."
     timeout: 30000
@@ -24,8 +24,8 @@ env:
 - tapOn:
     id: "field-key-passphrase"
 - inputText: ${KEY_PASS}
-- tapOn:
-    id: "passphrase-submit"
+# Submit with Return: the passphrase sheet moves with the keyboard, so a tap on the button can miss.
+- pressKey: Enter
 - extendedWaitUntil:
     visible: "This message is not signed, so the sender cannot be confirmed\\."
     timeout: 30000

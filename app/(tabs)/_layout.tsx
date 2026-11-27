@@ -1,33 +1,36 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
-import type { ComponentProps } from 'react';
-import type { ColorValue } from 'react-native';
+import { NativeTabs } from 'expo-router/native-tabs';
 
 import { colors } from '../../utils/theme';
 
-type IconName = ComponentProps<typeof Ionicons>['name'];
-
-function tabIcon(name: IconName) {
-  return function TabIcon({ color, size }: { color: ColorValue; size: number }) {
-    return <Ionicons name={name} color={color as string} size={size} />;
-  };
-}
-
+/**
+ * System tab bar. iOS 26 and later draws it as Liquid Glass; earlier iOS and Android get
+ * their standard bar in the app palette. testID maps to the accessibility identifier on iOS,
+ * which the Maestro flows match.
+ */
 export default function TabsLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.aegean,
-        tabBarInactiveTintColor: colors.mist,
-        tabBarStyle: { backgroundColor: colors.deep, borderTopColor: colors.line },
-        sceneStyle: { backgroundColor: colors.abyss },
-      }}
+    <NativeTabs
+      tintColor={colors.aegean}
+      iconColor={{ default: colors.mist, selected: colors.aegean }}
+      labelStyle={{ default: { color: colors.mist }, selected: { color: colors.aegean } }}
+      backgroundColor={colors.deep}
     >
-      <Tabs.Screen name="index" options={{ title: 'Keyring', tabBarButtonTestID: 'tab-keyring', tabBarIcon: tabIcon('key-outline') }} />
-      <Tabs.Screen name="studio" options={{ title: 'Encrypt', tabBarButtonTestID: 'tab-encrypt', tabBarIcon: tabIcon('lock-closed-outline') }} />
-      <Tabs.Screen name="scan" options={{ title: 'Scan', tabBarButtonTestID: 'tab-scan', tabBarIcon: tabIcon('scan-outline') }} />
-      <Tabs.Screen name="settings" options={{ title: 'Settings', tabBarButtonTestID: 'tab-settings', tabBarIcon: tabIcon('settings-outline') }} />
-    </Tabs>
+      <NativeTabs.Trigger name="index" testID="tab-keyring">
+        <NativeTabs.Trigger.Icon sf="key" md="key" />
+        <NativeTabs.Trigger.Label>Keyring</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="studio" testID="tab-encrypt">
+        <NativeTabs.Trigger.Icon sf="lock" md="lock" />
+        <NativeTabs.Trigger.Label>Encrypt</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="scan" testID="tab-scan">
+        <NativeTabs.Trigger.Icon sf="qrcode.viewfinder" md="qr_code_scanner" />
+        <NativeTabs.Trigger.Label>Scan</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="settings" testID="tab-settings">
+        <NativeTabs.Trigger.Icon sf="gearshape" md="settings" />
+        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

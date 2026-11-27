@@ -3,13 +3,14 @@ import { useIsFocused, useRouter } from 'expo-router';
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Alert, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 
+import { SolidPanel } from '../components/Glass';
 import { SealGlyph } from '../components/SealGlyph';
-import { Banner, Button, Fingerprint, Panel, Screen } from '../components/ui';
+import { Banner, Button, Fingerprint, Screen } from '../components/ui';
 import { useKeyring } from '../services/KeyringProvider';
 import * as pgp from '../services/pgpService';
 import { FrameAssembler, isFrame } from '../services/qrTransport';
 import { errorMessage, groupFingerprint, keyLabel } from '../utils/format';
-import { colors, space, type } from '../utils/theme';
+import { colors, glass, space, type } from '../utils/theme';
 
 type Facing = 'back' | 'front';
 
@@ -215,11 +216,11 @@ export function ScannerScreen() {
         {outcome.kind === 'imported' && record ? (
           <>
             <Banner tone="ok">{outcome.wasKnown ? `${keyLabel(record.info)} updated.` : `${keyLabel(record.info)} added to your keyring.`}</Banner>
-            <Panel>
+            <SolidPanel>
               <SealGlyph fingerprint={record.info.fingerprint} size={64} />
               <Fingerprint value={groupFingerprint(record.info.fingerprint)} />
               <Text style={type.note}>Check this fingerprint with its owner before you rely on the key.</Text>
-            </Panel>
+            </SolidPanel>
             <Button label="Open key" onPress={() => { router.push(`/key/${record.info.fingerprint}`); restart(); }} />
           </>
         ) : null}
@@ -229,7 +230,9 @@ export function ScannerScreen() {
         {outcome.kind === 'mismatch' ? (
           <>
             <Banner tone="bad">No key in your keyring has this fingerprint. Do not rely on any key you hold for this person.</Banner>
-            <Fingerprint value={groupFingerprint(outcome.fingerprint)} />
+            <SolidPanel>
+              <Fingerprint value={groupFingerprint(outcome.fingerprint)} />
+            </SolidPanel>
           </>
         ) : null}
         {outcome.kind === 'rejected' ? <Banner tone="bad">{outcome.message}</Banner> : null}
@@ -280,7 +283,7 @@ export function ScannerScreen() {
 }
 
 const styles = StyleSheet.create({
-  viewfinder: { flex: 1, overflow: 'hidden', borderRadius: 14, backgroundColor: colors.deep },
-  track: { height: 6, borderRadius: 3, backgroundColor: colors.raised, marginTop: space.sm, overflow: 'hidden' },
+  viewfinder: { flex: 1, overflow: 'hidden', borderRadius: glass.radius.row, backgroundColor: glass.solid },
+  track: { height: 6, borderRadius: 3, backgroundColor: glass.fill, marginTop: space.sm, overflow: 'hidden' },
   fill: { height: 6, backgroundColor: colors.aegean },
 });

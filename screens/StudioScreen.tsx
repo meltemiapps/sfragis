@@ -1,9 +1,12 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as ScreenCapture from 'expo-screen-capture';
 import { useEffect, useMemo, useState } from 'react';
-import { Switch, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Switch, StyleSheet, Text, View } from 'react-native';
 
-import { KeyRow } from '../components/KeyRow';
+import { GlassSurface } from '../components/Glass';
+import { KeyRow, keyAccessibilityLabel } from '../components/KeyRow';
+import { SealGlyph } from '../components/SealGlyph';
 import { OutputPanel } from '../components/OutputPanel';
 import { usePassphrase } from '../components/PassphraseProvider';
 import { Banner, Button, Field, Row, Screen, Segmented } from '../components/ui';
@@ -12,11 +15,32 @@ import * as pgp from '../services/pgpService';
 import type { KeyRecord } from '../services/vault';
 import { pasteText } from '../utils/clipboard';
 import { errorMessage, isExpired, keyLabel, nextPaint } from '../utils/format';
-import { colors, space, type } from '../utils/theme';
+import { colors, glass, space, type } from '../utils/theme';
 
 type Mode = 'encrypt' | 'decrypt';
 
 const isUsable = (record: KeyRecord) => !record.info.isRevoked && !isExpired(record.info);
+
+/** A recipient on a glass chip, tinted teal when chosen. Same label and role as KeyRow. */
+function RecipientChip({ record, selected, onPress }: { record: KeyRecord; selected: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: selected }}
+      accessibilityLabel={keyAccessibilityLabel(record)}
+      style={({ pressed }) => pressed && styles.pressed}
+    >
+      <GlassSurface radius={glass.radius.chip} interactive tint={selected ? glass.selected : undefined}>
+        <View style={styles.chip}>
+          <SealGlyph fingerprint={record.info.fingerprint} size={24} />
+          <Text style={[type.label, styles.chipLabel]}>{keyLabel(record.info)}</Text>
+          {selected ? <Ionicons name="checkmark" size={16} color={colors.foam} /> : null}
+        </View>
+      </GlassSurface>
+    </Pressable>
+  );
+}
 
 function EncryptPane() {
   const router = useRouter();
@@ -81,9 +105,9 @@ function EncryptPane() {
   return (
     <>
       <Text style={type.label}>Recipients</Text>
-      <View style={styles.list}>
+      <View style={styles.chips}>
         {encryptable.map((key) => (
-          <KeyRow
+          <RecipientChip
             key={key.info.fingerprint}
             record={key}
             selected={recipients.includes(key.info.fingerprint)}
@@ -97,16 +121,18 @@ function EncryptPane() {
 
       {signers.length > 0 ? (
         <>
-          <View style={styles.switchRow}>
-            <Text style={type.label}>Sign as me</Text>
-            <Switch
-              testID="switch-sign"
-              accessibilityLabel="Sign as me"
-              value={signing}
-              onValueChange={setSigning}
-              trackColor={{ true: colors.aegean, false: colors.line }}
-            />
-          </View>
+          <GlassSurface radius={glass.radius.row}>
+            <View style={styles.switchRow}>
+              <Text style={[type.label, styles.flex]}>Sign as me</Text>
+              <Switch
+                testID="switch-sign"
+                accessibilityLabel="Sign as me"
+                value={signing}
+                onValueChange={setSigning}
+                trackColor={{ true: colors.aegean, false: colors.line }}
+              />
+            </View>
+          </GlassSurface>
           {signing && signers.length > 1 ? (
             <Segmented
               value={signer?.info.fingerprint ?? ''}
@@ -261,5 +287,10 @@ export function StudioScreen() {
 
 const styles = StyleSheet.create({
   list: { gap: space.sm },
-  switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 38, paddingLeft: space.sm, paddingRight: space.md },
+  chipLabel: { flexShrink: 1 },
+  pressed: { opacity: 0.8 },
+  flex: { flex: 1 },
+  switchRow: { flexDirection: 'row', gap: space.md, alignItems: 'center', minHeight: 56, paddingHorizontal: space.lg },
 });
