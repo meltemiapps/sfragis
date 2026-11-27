@@ -16,14 +16,14 @@ env:
     id: "button-revoke-key"
 - tapOn: "I no longer use it"
 - inputText: ${KEY_PASS}
-- tapOn:
-    id: "passphrase-submit"
+# Submit with Return: the passphrase sheet moves with the keyboard, so a tap on the button can miss.
+- pressKey: Enter
 - extendedWaitUntil:
     visible: "Key revoked"
     timeout: 30000
 - tapOn: "OK"
+# The banner sits near the top of the page, where it cannot be scrolled to the centre.
 - scrollUntilVisible:
-    centerElement: true
     visibilityPercentage: 100
     element: "This key has been revoked and must not be used\\."
     direction: UP

@@ -23,6 +23,14 @@ env:
     id: "field-type-erase-to-confirm"
 - inputText: "erase"
 - pressKey: Enter
+# Screens scroll under the floating tab bar. Once the keyboard has gone, bring the button
+# back to the middle so the tap cannot land on the tab bar.
+- waitForAnimationToEnd
+- scrollUntilVisible:
+    centerElement: true
+    visibilityPercentage: 100
+    element:
+      id: "button-erase-keyring"
 - tapOn:
     id: "button-erase-keyring"
 - assertVisible: "1 stored key\\(s\\) will be permanently deleted\\."
