@@ -1,6 +1,6 @@
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useEffect, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Platform, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { colors, glass, space } from '../utils/theme';
 
@@ -51,12 +51,15 @@ export function GlassSurface({
   style,
   interactive = false,
   radius = glass.radius.row,
+  tint,
   testID,
 }: {
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   interactive?: boolean;
   radius?: number;
+  /** Tints the glass, e.g. a selected chip. Without glass it becomes the fill. */
+  tint?: string;
   testID?: string;
 }) {
   const enabled = useGlassEnabled();
@@ -67,6 +70,7 @@ export function GlassSurface({
         glassEffectStyle="regular"
         colorScheme="dark"
         isInteractive={interactive}
+        tintColor={tint}
         style={[{ borderRadius: radius }, style]}
       >
         {children}
@@ -74,8 +78,20 @@ export function GlassSurface({
     );
   }
   return (
-    <View testID={testID} style={[styles.fallback, { borderRadius: radius }, style]}>
+    <View testID={testID} style={[styles.fallback, { borderRadius: radius }, tint ? { backgroundColor: tint } : null, style]}>
       {children}
+    </View>
+  );
+}
+
+/** Own, verified or unverified, on a dark translucent pill. */
+export function TrustPill({ trust }: { trust: 'own' | 'verified' | 'unverified' }) {
+  const label = { own: 'Your key', verified: 'Verified', unverified: 'Unverified' }[trust];
+  return (
+    <View style={styles.pill}>
+      <Text style={[styles.pillText, { color: glass.trust[trust] }]} maxFontSizeMultiplier={1.6}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -100,4 +116,12 @@ const styles = StyleSheet.create({
     padding: space.lg,
     gap: space.md,
   },
+  pill: {
+    alignSelf: 'flex-start',
+    backgroundColor: glass.pill,
+    borderRadius: 999,
+    paddingHorizontal: space.sm + 2,
+    paddingVertical: 3,
+  },
+  pillText: { fontSize: 12, lineHeight: 16, fontWeight: '600' },
 });

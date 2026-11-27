@@ -16,8 +16,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, mono, radius, space, type } from '../utils/theme';
-import { Backdrop } from './Glass';
+import { colors, glass, mono, space, type } from '../utils/theme';
+import { Backdrop, GlassSurface } from './Glass';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -37,14 +37,48 @@ export function slug(label: string): string {
   return label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-export function Screen({ children, scroll = true, title }: { children: ReactNode; scroll?: boolean; title?: string }) {
-  const header = title ? <Text style={[type.title, styles.title]} accessibilityRole="header" maxFontSizeMultiplier={TITLE_MAX_SCALE}>{title}</Text> : null;
+/**
+ * Every screen draws the backdrop. Scrolling content runs under the system tab bar and any
+ * transparent header; `contentInsetAdjustmentBehavior` keeps the ends reachable on iOS.
+ * `actions` is the glass action group at the top right of a titled screen.
+ */
+export function Screen({
+  children,
+  scroll = true,
+  title,
+  actions,
+}: {
+  children: ReactNode;
+  scroll?: boolean;
+  title?: string;
+  actions?: ReactNode;
+}) {
+  const large = useLargeText();
+  const heading = title ? (
+    <Text style={[type.title, styles.titleText]} accessibilityRole="header" maxFontSizeMultiplier={TITLE_MAX_SCALE}>
+      {title}
+    </Text>
+  ) : null;
+  const header = heading ? (
+    actions ? (
+      <View style={[styles.titleRow, large && styles.stacked]}>
+        {heading}
+        {actions}
+      </View>
+    ) : (
+      heading
+    )
+  ) : null;
   return (
     <SafeAreaView style={styles.screen} edges={title ? ['top', 'left', 'right'] : ['left', 'right']}>
       <Backdrop />
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {scroll ? (
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            contentContainerStyle={styles.content}
+            contentInsetAdjustmentBehavior="automatic"
+            keyboardShouldPersistTaps="handled"
+          >
             {header}
             {children}
           </ScrollView>
@@ -92,17 +126,41 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        tone === 'primary' && styles.buttonPrimary,
-        tone === 'quiet' && styles.buttonQuiet,
-        tone === 'danger' && styles.buttonDanger,
+        tone === 'primary' ? styles.buttonPrimary : styles.buttonGlass,
         pressed && styles.pressed,
         inactive && styles.inactive,
         style,
       ]}
     >
+      {tone === 'primary' ? null : <GlassSurface style={StyleSheet.absoluteFill} radius={glass.radius.control} interactive />}
       {busy ? <ActivityIndicator color={foreground} /> : icon ? <Ionicons name={icon} size={18} color={foreground} /> : null}
       <Text style={[styles.buttonLabel, { color: foreground }]}>{label}</Text>
     </Pressable>
+  );
+}
+
+/** The glass group of compact actions at the top right of a titled screen. */
+export function ActionGroup({ actions }: { actions: { label: string; icon: IconName; onPress: () => void }[] }) {
+  // At accessibility text sizes the actions stack, full width, instead of overflowing the row.
+  const large = useLargeText();
+  return (
+    <GlassSurface radius={glass.radius.control} style={[styles.actionGroup, large && styles.actionGroupStacked]}>
+      <View style={[styles.actionRow, large && styles.actionColumn]}>
+        {actions.map((action) => (
+          <Pressable
+            key={action.label}
+            testID={`button-${slug(action.label)}`}
+            accessibilityRole="button"
+            accessibilityLabel={action.label}
+            onPress={action.onPress}
+            style={({ pressed }) => [styles.action, pressed && styles.pressed]}
+          >
+            <Ionicons name={action.icon} size={18} color={colors.foam} />
+            <Text style={styles.actionLabel}>{action.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </GlassSurface>
   );
 }
 
@@ -114,23 +172,31 @@ export function Field({
   style,
   ...input
 }: TextInputProps & { label: string; hint?: string; error?: string | null; code?: boolean }) {
+  // Armored blocks are read and compared, so a code field is opaque rather than glass.
+  const Surface = code ? SolidField : GlassSurface;
   return (
     <View style={styles.field}>
       <Text style={type.label}>{label}</Text>
-      <TextInput
-        testID={`field-${slug(label)}`}
-        accessibilityLabel={label}
-        placeholderTextColor={colors.mist}
-        selectionColor={colors.aegean}
-        autoCapitalize="none"
-        autoCorrect={false}
-        spellCheck={false}
-        style={[styles.input, input.multiline && styles.inputMultiline, code && styles.inputCode, style]}
-        {...input}
-      />
+      <Surface radius={glass.radius.field}>
+        <TextInput
+          testID={`field-${slug(label)}`}
+          accessibilityLabel={label}
+          placeholderTextColor={colors.mist}
+          selectionColor={colors.aegean}
+          autoCapitalize="none"
+          autoCorrect={false}
+          spellCheck={false}
+          style={[styles.input, input.multiline && styles.inputMultiline, code && styles.inputCode, style]}
+          {...input}
+        />
+      </Surface>
       {error ? <Text style={styles.error}>{error}</Text> : hint ? <Text style={type.note}>{hint}</Text> : null}
     </View>
   );
+}
+
+function SolidField({ children, radius }: { children: ReactNode; radius: number }) {
+  return <View style={[styles.solidField, { borderRadius: radius }]}>{children}</View>;
 }
 
 /**
@@ -151,16 +217,27 @@ export function PassphraseField(props: TextInputProps & { label: string; hint?: 
   );
 }
 
+/**
+ * A glass group of prose and controls, such as a Settings section. Anything that must stay
+ * readable or scannable (fingerprints, key details, armored text) goes in SolidPanel instead.
+ */
 export function Panel({ children, style }: { children: ReactNode; style?: ViewStyle }) {
-  return <View style={[styles.panel, style]}>{children}</View>;
+  return (
+    <GlassSurface radius={glass.radius.row} style={[styles.panel, style]}>
+      {children}
+    </GlassSurface>
+  );
 }
 
 export function Banner({ tone, children }: { tone: 'ok' | 'warn' | 'bad' | 'info'; children: ReactNode }) {
   const accent = { ok: colors.leaf, warn: colors.sand, bad: colors.wax, info: colors.aegean }[tone];
   return (
-    <View style={[styles.banner, { borderLeftColor: accent }]} accessibilityRole="alert">
-      <Text style={type.body}>{children}</Text>
-    </View>
+    <GlassSurface radius={glass.radius.field}>
+      <View style={styles.banner} accessibilityRole="alert">
+        <View style={[styles.bannerAccent, { backgroundColor: accent }]} />
+        <Text style={[type.body, styles.flex]}>{children}</Text>
+      </View>
+    </GlassSurface>
   );
 }
 
@@ -175,24 +252,26 @@ export function Segmented<T extends string>({
 }) {
   const large = useLargeText();
   return (
-    <View style={[styles.segmented, large && styles.stacked]} accessibilityRole="tablist">
-      {options.map((option) => {
-        const selected = option.value === value;
-        return (
-          <Pressable
-            key={option.value}
-            testID={`segment-${slug(option.value)}`}
-            accessibilityRole="tab"
-            accessibilityLabel={option.label}
-            accessibilityState={{ selected }}
-            onPress={() => onChange(option.value)}
-            style={[styles.segment, large && styles.segmentStacked, selected && styles.segmentSelected]}
-          >
-            <Text style={[type.label, selected && { color: colors.onAegean }]}>{option.label}</Text>
-          </Pressable>
-        );
-      })}
-    </View>
+    <GlassSurface radius={glass.radius.segment} style={[styles.segmented, large && styles.stacked]}>
+      <View style={[styles.segmentRow, large && styles.stacked]} accessibilityRole="tablist">
+        {options.map((option) => {
+          const selected = option.value === value;
+          return (
+            <Pressable
+              key={option.value}
+              testID={`segment-${slug(option.value)}`}
+              accessibilityRole="tab"
+              accessibilityLabel={option.label}
+              accessibilityState={{ selected }}
+              onPress={() => onChange(option.value)}
+              style={[styles.segment, large && styles.segmentStacked, selected && styles.segmentSelected]}
+            >
+              <Text style={[type.label, selected && styles.segmentLabelSelected]}>{option.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </GlassSurface>
   );
 }
 
@@ -213,44 +292,50 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.abyss },
   content: { padding: space.lg, gap: space.lg, paddingBottom: space.xxl },
-  title: { marginTop: space.sm },
+  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.md },
+  titleText: { marginTop: space.sm, flexShrink: 1 },
   button: {
     minHeight: 46,
-    borderRadius: radius.control,
+    borderRadius: glass.radius.control,
     paddingHorizontal: space.lg,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: space.sm,
   },
-  buttonPrimary: { backgroundColor: colors.aegean },
-  buttonQuiet: { backgroundColor: colors.raised },
-  buttonDanger: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.wax },
+  buttonPrimary: { backgroundColor: colors.aegean, borderRadius: glass.radius.primary, minHeight: 50 },
+  buttonGlass: { overflow: 'hidden' },
   buttonLabel: { fontSize: 16, fontWeight: '600' },
+  actionGroup: { alignSelf: 'flex-start', marginTop: space.sm, padding: 3 },
+  actionGroupStacked: { alignSelf: 'stretch' },
+  actionRow: { flexDirection: 'row' },
+  actionColumn: { flexDirection: 'column' },
+  action: { flexDirection: 'row', alignItems: 'center', gap: space.xs, minHeight: 40, paddingHorizontal: space.md },
+  actionLabel: { fontSize: 15, fontWeight: '600', color: colors.foam },
   pressed: { opacity: 0.75 },
   inactive: { opacity: 0.45 },
   field: { gap: space.sm },
   input: {
-    backgroundColor: colors.deep,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.control,
     color: colors.foam,
     fontSize: 16,
     paddingHorizontal: space.md,
     paddingVertical: space.md,
     minHeight: 46,
   },
+  solidField: { backgroundColor: glass.solid, borderWidth: StyleSheet.hairlineWidth, borderColor: glass.solidBorder },
   inputMultiline: { minHeight: 132, textAlignVertical: 'top' },
   inputCode: { fontFamily: mono, fontSize: 13, lineHeight: 18 },
   error: { ...type.note, color: colors.wax },
-  panel: { backgroundColor: colors.deep, borderRadius: radius.panel, padding: space.lg, gap: space.md },
-  banner: { backgroundColor: colors.deep, borderLeftWidth: 3, padding: space.md, borderRadius: 4 },
-  segmented: { flexDirection: 'row', backgroundColor: colors.deep, borderRadius: radius.control, padding: space.xs },
-  segment: { flex: 1, minHeight: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 8 },
+  panel: { padding: space.lg, gap: space.md },
+  banner: { flexDirection: 'row', gap: space.md, padding: space.md, alignItems: 'stretch' },
+  bannerAccent: { width: 4, borderRadius: 2 },
+  segmented: { padding: space.xs },
+  segmentRow: { flexDirection: 'row', gap: space.xs },
+  segment: { flex: 1, minHeight: 40, alignItems: 'center', justifyContent: 'center', borderRadius: glass.radius.segment - space.xs },
   segmentStacked: { flex: 0, paddingVertical: space.sm, paddingHorizontal: space.md },
   stacked: { flexDirection: 'column', flexWrap: 'nowrap', alignItems: 'stretch' },
-  segmentSelected: { backgroundColor: colors.aegean },
+  segmentSelected: { backgroundColor: glass.bright },
+  segmentLabelSelected: { color: '#FFFFFF' },
   fingerprint: { fontFamily: mono, fontSize: 15, lineHeight: 24, color: colors.foam },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
 });

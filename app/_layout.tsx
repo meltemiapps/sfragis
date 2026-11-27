@@ -1,15 +1,16 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { AppState, StyleSheet, View } from 'react-native';
+import { AppState, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { PassphraseProvider } from '../components/PassphraseProvider';
 import { KeyringProvider } from '../services/KeyringProvider';
 import { colors } from '../utils/theme';
 
+// On iOS the header is transparent so the backdrop runs under it; iOS 26 draws its buttons as glass.
 const headerOptions = {
-  headerStyle: { backgroundColor: colors.abyss },
+  ...(Platform.OS === 'ios' ? { headerTransparent: true } : { headerStyle: { backgroundColor: colors.abyss } }),
   headerTintColor: colors.foam,
   headerShadowVisible: false,
   contentStyle: { backgroundColor: colors.abyss },

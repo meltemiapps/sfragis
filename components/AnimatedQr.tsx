@@ -3,7 +3,7 @@ import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { encodeFrames } from '../services/qrTransport';
-import { space, type } from '../utils/theme';
+import { glass, space, type } from '../utils/theme';
 import { Button, Row, Segmented } from './ui';
 
 const SPEEDS = { steady: 900, fast: 450 } as const;
@@ -67,7 +67,7 @@ export function AnimatedQr({ payload }: { payload: string }) {
 
 const styles = StyleSheet.create({
   wrap: { alignItems: 'center', gap: space.md },
-  quietZone: { backgroundColor: '#FFFFFF', padding: space.lg, borderRadius: 8 },
+  quietZone: { backgroundColor: '#FFFFFF', padding: space.lg, borderRadius: glass.radius.panel },
   center: { textAlign: 'center' },
   speed: { alignSelf: 'stretch' },
 });
