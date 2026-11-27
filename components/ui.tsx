@@ -17,6 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, mono, radius, space, type } from '../utils/theme';
+import { Backdrop } from './Glass';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -40,6 +41,7 @@ export function Screen({ children, scroll = true, title }: { children: ReactNode
   const header = title ? <Text style={[type.title, styles.title]} accessibilityRole="header" maxFontSizeMultiplier={TITLE_MAX_SCALE}>{title}</Text> : null;
   return (
     <SafeAreaView style={styles.screen} edges={title ? ['top', 'left', 'right'] : ['left', 'right']}>
+      <Backdrop />
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {scroll ? (
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">

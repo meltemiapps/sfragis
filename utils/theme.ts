@@ -15,7 +15,25 @@ export const colors = {
   leaf: '#63CF94',
 } as const;
 
-export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
+/**
+ * Liquid Glass skin (1.1). `backdrop` sits behind every screen and glass surfaces float over it.
+ * `solid` is for anything that must stay readable or scannable: fingerprints, armored blocks,
+ * decrypted text and QR codes never sit on glass.
+ */
+export const glass = {
+  backdrop:
+    'radial-gradient(circle at 84% 6%, rgba(76,195,207,0.6) 0%, rgba(76,195,207,0) 46%), ' +
+    'radial-gradient(circle at 8% 94%, rgba(227,182,91,0.34) 0%, rgba(227,182,91,0) 42%), ' +
+    'linear-gradient(155deg, #0F4660 0%, #12707C 52%, #08151F 100%)',
+  fill: 'rgba(255,255,255,0.12)',
+  border: 'rgba(255,255,255,0.22)',
+  solid: '#0A1C28',
+  solidBorder: 'rgba(255,255,255,0.14)',
+  mist: 'rgba(255,255,255,0.66)',
+  radius: { row: 24, control: 23, panel: 18, sheet: 30 },
+} as const;
+
+export const space ={ xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 
 export const radius = { control: 10, panel: 14 } as const;
 
